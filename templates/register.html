@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600&display=swap" rel="stylesheet">
+    <!--Stylesheet-->
+    <link href="{{ url_for('static', filename='STYLES.CSS') }}" rel="stylesheet">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <script type="module" defer src="{{ url_for('static', filename='register.js') }}"></script>
+    <script type="module" defer src="{{ url_for('static', filename='google.js') }}"></script>
+    <script type="module" defer src="{{ url_for('static', filename='facebook.js') }}"></script>
+</head>
+
+<body>
+    <div class="background">
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <form>
+        <h3>Create Account</h3>
+
+        <label for="email">Email</label>
+        <input type="email" placeholder="Email" id="email" required>
+
+        <label for="password">Password</label>
+        <input type="password" placeholder="Password" id="password" required>
+
+        <label for="username">Username</label>
+        <input type="text" placeholder="Username" id="username" required>
+
+        <label for="genre">Favorite Genre</label>
+        <select id="genre" required>
+            <option value="space opera">Space Opera</option>
+            <option value="cyberpunk">Cyberpunk</option>
+            <option value="dystopian">Dystopian</option>
+            <option value="time travel">Time Travel</option>
+        </select>
+        <label for="description">Sci-fi Preferences (max 20 words):</label>
+        <textarea id="description" placeholder="Describe your sci-fi preferences..." maxlength="160" rows="3" required></textarea>
+        
+        <label for="gender">Gender</label>
+        <select id="gender" required>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+        </select>
+        <button id="submit" type="submit">Create Account</button>
+        <div class="social">
+            <div class="go" id="google"><i class="fab fa-google"></i> Google</div>
+            <div class="fb" id="facebook"><i class="fab fa-facebook"></i> Facebook</div>
+        </div>
+
+        <div class="form">
+            <p>Have an account?
+                <span> <a href="{{ url_for('login') }}">Login Here</a></span>
+        </div>
+        </p>
+
+    </form>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Sci-fi Content</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link href="{{ url_for('static', filename='style2.CSS') }}" rel="stylesheet">
+</head>
+<body class="bg-light p-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div id="user-info">
+                <img id="user-avatar" src="" alt="User Avatar" style="width: 50px; height: 50px; border-radius: 50%;">
+                <span id="user-email"></span>
+            </div>
+            <button class="btn btn-danger" id="sign-out">Sign Out</button>
+        </div>
+        <h1 class="text-primary mb-4"><i class="fas fa-rocket"></i> Generated Sci-Fi Content</h1>
+        
+        <div class="card p-4 mb-4 shadow">
+            <div class="row">
+                <div class="col-md-6">
+                    <h3 class="text-center mb-4">{{generated_title}}</h3>
+                    <div class="card-body text-center generated-text">
+                        {{ generated_text }}
+                    </div>
+                    <textarea class="form-control editable-textarea" rows="6">{{ generated_text }}</textarea>
+                    <button class="btn btn-primary edit-button">Edit</button>
+                    <button class="btn btn-success save-button" style="display: none;">Save</button>
+                    
+                    <!-- Updated Text-to-Speech Controls -->
+                    <div class="text-to-speech-controls mt-3">
+                        <select id="voice-select" class="form-control mb-2">
+                            <option value="">Select a voice</option>
+                        </select>
+                        <label for="speech-rate">Speech Rate:</label>
+                        <input type="range" id="speech-rate" min="0.5" max="2" step="0.1" value="1" class="form-control-range mb-2">
+                        <button class="btn btn-secondary" onclick="speakTextWithVoice()">🔊 Listen with Selected Voice</button>
+                    </div>
+
+                    <form action="/continue" method="post">
+                        <input type="hidden" name="initial_text" value="{{ generated_text }}">
+                        <input type="hidden" name="prompt" value="{{ prompt }}">
+                        <input type="hidden" name="desired_length" value="{{ desired_length }}">
+                        <input type="hidden" name="temperature" value="{{ temperature }}">
+                        <p class="text-center mt-4 sci-fi-message">Select a cosmic trajectory to advance the narrative:</p>
+                        <button type="submit" class="btn btn-outline-info continue-button sci-fi-prompt" name="selected_prompt" value="1">{{ ' '.join(prompt1.split()[:5]) }}</button>
+                        <button type="submit" class="btn btn-outline-info continue-button sci-fi-prompt" name="selected_prompt" value="2">{{ ' '.join(prompt2.split()[:5]) }}</button>
+                    </form>
+                    <div class="text-center mt-4">
+                        <h4>Rating</h4>
+                        <p><strong>Creativity:</strong> {{ rating.split(",")[0].split(":")[1].strip() }}</p>
+                        <p><strong>Suspense:</strong> {{ rating.split(",")[1].split(":")[1].strip() }}</p>
+                        <p><strong>Sentiment:</strong> {{ sentiment }}</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <h3 class="text-center mb-4">Generated Image</h3>
+                    <img class="img-fluid w-100 generated-image" src="data:image/png;base64,{{ generated_image_data|b64encode }}" alt="Generated Image">
+                </div>
+                
+            </div>
+        </div>
+        
+        <div class="twitter-share">
+            <a href="https://twitter.com/intent/tweet?url=http://127.0.0.1:5000/generate&text=Check%20out%20this%20generated%20sci-fi%20content%3A%20{{generated_title}}" class="btn btn-info mt-3" target="_blank">Share on Twitter</a>
+        </div>
+        
+        <div class="text-center mt-4">
+            <a href="/index" class="btn btn-primary">Generate Another</a>
+        </div>
+        <div class="text-center mt-4">
+            <button class="btn btn-warning save-to-firestore-button">Save to Firestore</button>
+        </div>
+    </div>
+
+    <audio id="background-music" src="{{ url_for('static', filename=background_music) }}" autoplay loop></audio>
+
+    <script type="module" defer src="{{ url_for('static', filename='generated.js') }}"></script>
+    <script>
+        let voices = [];
+        let currentUtterance = null;
+        let backgroundMusic;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const editButton = document.querySelector('.edit-button');
+            const saveButton = document.querySelector('.save-button');
+            const generatedText = document.querySelector('.generated-text');
+            const editableTextarea = document.querySelector('.editable-textarea');
+            const userAvatar = localStorage.getItem('userAvatarUrl');
+            if (userAvatar) {
+                document.getElementById('user-avatar').src = userAvatar;
+            }
+
+            backgroundMusic = document.getElementById('background-music');
+
+            editButton.addEventListener('click', function() {
+                generatedText.style.display = 'none';
+                editableTextarea.style.display = 'block';
+                editButton.style.display = 'none';
+                saveButton.style.display = 'inline-block';
+            });
+
+            saveButton.addEventListener('click', function() {
+                const editedText = editableTextarea.value;
+                generatedText.textContent = editedText;
+                generatedText.style.display = 'block';
+                editableTextarea.style.display = 'none';
+                editButton.style.display = 'inline-block';
+                saveButton.style.display = 'none';
+
+                fetch('/save_text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        'edited_text': editedText,
+                    })
+                }).then(response => response.text()).then(data => {
+                    console.log(data);
+                }).catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+
+            document.querySelectorAll('.continue-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    stopSpeech();
+                    button.classList.add('active');
+                    document.querySelectorAll('.continue-button').forEach(btn => {
+                        if (btn !== button) {
+                            btn.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // Add event listener to "Generate Another" button
+            const generateAnotherButton = document.querySelector('a[href="/index"]');
+            if (generateAnotherButton) {
+                generateAnotherButton.addEventListener('click', stopSpeech);
+            }
+
+            populateVoiceList();
+        });
+
+        function populateVoiceList() {
+            voices = speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('voice-select');
+            voiceSelect.innerHTML = '<option value="">Select a voice</option>';
+            
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        function speakTextWithVoice() {
+            stopSpeech(); // Stop any ongoing speech
+            const text = document.querySelector('.generated-text').textContent;
+            const voiceSelect = document.getElementById('voice-select');
+            const rateInput = document.getElementById('speech-rate');
+            currentUtterance = new SpeechSynthesisUtterance(text);
+            
+            if (voiceSelect.value !== "") {
+                currentUtterance.voice = voices[voiceSelect.value];
+            }
+            
+            currentUtterance.rate = parseFloat(rateInput.value);
+            
+            // Pause the background music
+            if (backgroundMusic) {
+                backgroundMusic.pause();
+            }
+            
+            speechSynthesis.speak(currentUtterance);
+
+            // Resume background music when speech ends
+            currentUtterance.onend = function() {
+                if (backgroundMusic) {
+                    backgroundMusic.play();
+                }
+            };
+        }
+
+        function stopSpeech() {
+            if (speechSynthesis.speaking) {
+                speechSynthesis.cancel();
+            }
+            currentUtterance = null;
+
+            // Resume background music when speech is stopped
+            if (backgroundMusic) {
+                backgroundMusic.play();
+            }
+        }
+
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = populateVoiceList;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sci-fi Blog Generator</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Sci-fi themed icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Sci-fi themed font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="{{ url_for('static', filename='site.webmanifest') }}">
+    <link href="{{ url_for('static', filename='style.CSS') }}" rel="stylesheet">
+</head> 
+<body>
+    <div class="container py-5">
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div id="user-info">
+                <img id="user-avatar" src="" alt="User Avatar" style="width: 50px; height: 50px; border-radius: 50%;">
+                <span id="user-email"></span>
+            </div>
+            
+            <button class="btn btn-danger" id="sign-out">Sign Out</button>
+        </div>
+
+        <h1 class="text-center mb-5"><i class="fas fa-rocket"></i> Generate a Sci-fi Blog Post</h1>
+        <div class="card p-5 mb-5 shadow">
+            <h3 class="text-center mb-4">Enter a custom prompt and desired length:</h3>
+            <form action="/generate" method="post" class="text-center">
+                <div class="form-group">
+                    <label for="custom_prompt">Enter a custom prompt (optional):</label>
+                    <textarea name="custom_prompt" id="custom_prompt" rows="4" class="form-control"></textarea>
+                    <button type="button" class="btn btn-secondary mt-2" onclick="startDictation()">🎤 Speak</button>
+                </div>
+                <div class="form-group">
+                    <label for="length">Desired length (number of words):</label>
+                    <input type="number" id="length" name="length" min="50" max="1000" step="5" value="500" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="temperature">Creativity (serious to more fictional):</label>
+                    <input type="number" id="temperature" name="temperature" min="0" max="1" step="0.1" value="0.7" class="form-control">
+                </div>
+                <input type="submit" value="Generate" class="btn btn-light mt-3">
+                <div class="form-group">
+                    <label>Select a subgenre:</label><br>
+                    <input type="radio" id="subgenre1" name="subgenre" value="space opera" checked>
+                    <label for="subgenre1">Space Opera</label><br>
+                    <input type="radio" id="subgenre2" name="subgenre" value="cyberpunk">
+                    <label for="subgenre2">Cyberpunk</label><br>
+                    <input type="radio" id="subgenre3" name="subgenre" value="dystopian">
+                    <label for="subgenre3">Dystopian</label><br>
+                    <input type="radio" id="subgenre4" name="subgenre" value="time travel">
+                    <label for="subgenre4">Time Travel</label>
+                </div>
+            </form>
+        </div>
+        <h3 class="text-center mb-4">Or select a predefined prompt:</h3>
+        <div class="d-flex justify-content-center flex-wrap">
+            <div class="card m-2 p-3" id="prompt1" onclick="generateBlog('It’s easy to look up exactly where any person is at any given time.')">
+                <div class="card-body">Power of seeing everyone at any given time</div>
+            </div>
+            <div class="card m-2 p-3" id="prompt2" onclick="generateBlog('New fitness devices track your movements and everything you eat automatically')">
+                <div class="card-body">Fitness device</div>
+            </div>
+            <div class="card m-2 p-3" id="prompt3" onclick="generateBlog('An attempt to save the honeybees had surprising consequences.')">
+                <div class="card-body">Save honeybees</div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href='/saved' class="btn btn-primary">View Saved Content</a>
+        </div>
+    </div>
+    <!-- Open bot button -->
+    <button class="open-bot-button" onclick="openBot()">Open Chat Bot</button>
+    <!-- Embedded bot -->
+    <div class="embedded-bot" id="bot" style="display: none;">
+        <h3 class="text-center mb-4">Chat with a Sci-fi Bot</h3>
+        <button class="close-button" onclick="closeBot()">Close</button>
+        <iframe id="botFrame" src='https://webchat.botframework.com/embed/SciFi-bot?s=-mC_BLdz3yo.966NBUevpjnwGQwXx9YkYp2PajGj2VWAgntg71D3Y_M' style='min-width: 400px; width: 100%; min-height: 500px;'></iframe>
+    </div>
+    <script type="module" defer src="{{ url_for('static', filename='auth.js') }}"></script>
+    <script>
+        function openBot() {
+            const bot = document.getElementById('bot');
+            bot.style.display = 'block';
+        } 
+
+        function closeBot() {
+            const bot = document.getElementById('bot');
+            bot.style.display = 'none';
+        }
+
+        function generateBlog(prompt) {
+            const form = document.createElement('form');
+            form.method = 'post';
+            form.action = '/generate';
+
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'custom_prompt';
+            input.value = prompt;
+            form.appendChild(input);
+
+            const lengthInput = document.createElement('input');
+            lengthInput.type = 'hidden';
+            lengthInput.name = 'length';
+            lengthInput.value = document.getElementById('length').value;
+            form.appendChild(lengthInput);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function startDictation() {
+            if (window.hasOwnProperty('webkitSpeechRecognition')) {
+                const recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+                recognition.start();
+
+                recognition.onresult = function(e) {
+                    document.getElementById('custom_prompt').value = e.results[0][0].transcript;
+                    recognition.stop();
+                };
+
+                recognition.onerror = function(e) {
+                    recognition.stop();
+                };
+            } else {
+                alert('Speech recognition is not supported in this browser. Please use Chrome.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const userDescription = localStorage.getItem('userDescription');
+
+            const userAvatar = localStorage.getItem('userAvatarUrl');
+            if (userAvatar) {
+                document.getElementById('user-avatar').src = userAvatar;
+            }
+            if (userDescription) {
+                fetch('/generate_prompt', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({description: userDescription}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('custom_prompt').value = data.prompt;
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        
+    </script>
+    
+</body>
+</html>

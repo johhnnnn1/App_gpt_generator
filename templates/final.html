@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generated Sci-fi Content</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- Add any custom CSS styles here if needed -->
+    <link href="{{ url_for('static', filename='style3.CSS') }}" rel="stylesheet">
+</head>
+<body class="bg-light p-5">
+    <div class="container">
+        <h1 class="text-primary mb-4"><i class="fas fa-rocket"></i> Generated Sci-Fi Content</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div id="user-info">
+                <img id="user-avatar" src="" alt="User Avatar" style="width: 50px; height: 50px; border-radius: 50%;">
+                <span id="user-email"></span>
+            </div>
+            <button class="btn btn-danger" id="sign-out">Sign Out</button>
+        </div>
+        <!-- Text and Image Display in a Single Card -->
+        <div class="card p-4 mb-4 shadow">
+            <div class="row">
+                <!-- Column for Text -->
+                <div class="col-md-6">
+                    <h3 class="text-center mb-4">{{generated_title}}</h3>
+                    <div class="card-body text-center generated-text">
+                        {{ generated_text }}
+                    </div>
+                    <textarea class="form-control editable-textarea" rows="6">{{ generated_text }}</textarea>
+                    <button class="btn btn-primary edit-button">Edit</button>
+                    <button class="btn btn-success save-button" style="display: none;">Save</button>
+                    <button class="btn btn-secondary mt-2" onclick="speakText()">🔊 Listen</button>
+                    
+                    <div class="text-center mt-4">
+                        <h4>Rating</h4>
+                        <p><strong>Creativity:</strong> {{ rating.split(",")[0].split(":")[1].strip() }}</p>
+                        <p><strong>Suspense:</strong> {{ rating.split(",")[1].split(":")[1].strip() }}</p>
+                        <p><strong>Sentiment:</strong> {{ sentiment }}</p>
+                    </div>
+                </div>
+                
+                <!-- Column for Image -->
+                <div class="col-md-6">
+                    <h3 class="text-center mb-4">Generated Image</h3>
+                    <img src="{{ generated_image_url }}" alt="Generated Image" class="img-fluid mx-auto d-block generated-image">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Add download buttons for the image and text -->
+        <div class="text-center mt-4">
+            <a href="/download_image" class="btn btn-primary mr-3">Download Image</a>
+            <a href="/download_text" class="btn btn-primary">Download Text</a>
+        </div>
+        <div class="text-center mt-4">
+            <button class="btn btn-warning save-to-firestore-button">Save to Firestore</button>
+        </div>
+        <!-- Share on Twitter Button -->
+        <div class="twitter-share">
+            <a href="https://twitter.com/intent/tweet?url=http://127.0.0.1:5000/generate&text=Check%20out%20this%20generated%20sci-fi%20content%3A%20{{generated_title}}" class="btn btn-info mt-3" target="_blank">Share on Twitter</a>
+        </div>
+        
+        <!-- Button to Generate Another -->
+        <div class="text-center mt-4">
+            <a href="/index" class="btn btn-primary">Generate Another</a>
+        </div>
+    </div>
+    <!-- Add any additional JavaScript or libraries here if needed -->
+    <script type="module" defer src="{{ url_for('static', filename='generated.js') }}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const editButton = document.querySelector('.edit-button');
+            const saveButton = document.querySelector('.save-button');
+            const generatedText = document.querySelector('.generated-text');
+            const editableTextarea = document.querySelector('.editable-textarea');
+            const userAvatar = localStorage.getItem('userAvatarUrl');
+            if (userAvatar) {
+                document.getElementById('user-avatar').src = userAvatar;
+            }
+            editButton.addEventListener('click', function() {
+                generatedText.style.display = 'none';
+                editableTextarea.style.display = 'block';
+                editButton.style.display = 'none';
+                saveButton.style.display = 'inline-block';
+            });
+    
+            saveButton.addEventListener('click', function() {
+                const editedText = editableTextarea.value;
+                generatedText.textContent = editedText;
+                generatedText.style.display = 'block';
+                editableTextarea.style.display = 'none';
+                editButton.style.display = 'inline-block';
+                saveButton.style.display = 'none';
+    
+                // Send the edited text to the server to save it in the session
+                fetch('/save_text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ edited_text: editedText })
+                })
+                .then(response => response.text())
+                .then(data => {
+                    console.log(data);  // Optionally log the response
+                });
+            });
+        });
+
+        function speakText() {
+            const text = document.querySelector('.generated-text').textContent;
+            const speechSynthesisUtterance = new SpeechSynthesisUtterance(text);
+            speechSynthesis.speak(speechSynthesisUtterance);
+        }
+    </script>
+</body>
+</html>

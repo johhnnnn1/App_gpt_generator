@@ -1,0 +1,117 @@
+body {
+    background: #000; /* Fallback background color */
+    background-image: url('/static/green8.jpeg');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: cover; /* Adjust size to cover the entire screen */
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-attachment: fixed; /* Ensures background image stays fixed */
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+}
+
+.card {
+    background-color: rgba(0, 0, 0, 0.5); /* Reduced opacity for clearer background */
+    border: 2px solid rgba(0, 255, 106, 0.3); /* Adjusted border transparency */
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 0 10px rgba(0, 255, 106, 0.2); /* Adjusted box-shadow transparency */
+}
+
+.card:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 15px rgba(0, 255, 106, 0.4); /* Adjusted hover box-shadow transparency */
+}
+
+h1, h3, label, .card-body {
+    font-family: 'Orbitron', sans-serif;
+    color: #00ff6a;
+}
+
+.btn {
+    background-color: #00ff6a; 
+    color: #080710;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.btn:hover {
+    background-color: #00e065;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.embedded-bot {
+    display: block; 
+    position: fixed;
+    top: 5%;
+    right: 5%;
+    width: 40%;
+    background-color: rgba(0, 0, 0, 0.8); /* Adjusted background color transparency */
+    border: 2px solid rgba(0, 255, 106, 0.5);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 255, 106, 0.5);
+    z-index: 9999;
+    transition: all 0.3s ease;
+}
+
+.embedded-bot iframe {
+    width: 100%;
+    min-height: 500px;
+    border: none;
+    border-radius: 5px;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: #00ff6a;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(0, 255, 106, 0.5);
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.close-button:hover {
+    background-color: rgba(0, 0, 0, 0.9);
+}
+
+.close-button:active {
+    transform: scale(0.95);
+}
+
+.open-bot-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #00ff6a;
+    color: #080710;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.open-bot-button:hover {
+    background-color: #00e065;
+}
+
+.open-bot-button:active {
+    transform: scale(0.95);
+}
+
+
