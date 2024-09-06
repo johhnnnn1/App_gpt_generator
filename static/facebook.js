@@ -1,16 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth,signInWithPopup, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import firebaseConfig from './config.js';
 
-// Your web app's Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyDMwD8yTOmfAh3cANY6pcwjPYHQCj1yJXw",
-  authDomain: "scifigen-5154f.firebaseapp.com",
-  projectId: "scifigen-5154f",
-  storageBucket: "scifigen-5154f.appspot.com",
-  messagingSenderId: "968222875826",
-  appId: "1:968222875826:web:3ffc4e988686f6f39c69ab",
-  measurementId: "G-DKZ42Q7YY3"
-};
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
